@@ -1,0 +1,14 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Learning Express framework for NodeJS, digging deeper into the Express framework and having a good time learnig about Node in general",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Divinewill Eze Okoro",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
