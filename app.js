@@ -9,14 +9,13 @@ app.use(express.json());
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
-app.get('/api/v1/tours', (req, res) => {
+getAllTours = (req, res) => {
   res
     .status(200)
     .json({ status: 'success', results: tours.length, data: { tours } });
-});
+};
 
-// To make a variable in an endpoint nullable use the null operator in javascript (?) after the variable name e.g /:x?
-app.get('/api/v1/tours/:id/:x?', (req, res) => {
+getIndividualTour = (req, res) => {
   console.log(req.params);
   let id = Number(req.params.id);
   const tour = tours.find((tour) => tour.id === id);
@@ -24,9 +23,9 @@ app.get('/api/v1/tours/:id/:x?', (req, res) => {
     return res.status(404).json({ status: 'error', message: 'Invalid ID' });
   }
   res.status(200).json({ status: 'success', data: { tour } });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+addNewTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
 
@@ -38,23 +37,36 @@ app.post('/api/v1/tours', (req, res) => {
       res.status(201).json({ status: 'success', data: { tours: newTour } });
     }
   );
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+updateTour = (req, res) => {
   if (Number(req.params.id) > tours.length) {
     return res.status(404).json({ status: 'error', message: 'Invalid ID' });
   }
 
   res.status(200).json({ status: 'success', data: 'Expected Tour' });
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+deleteTour = (req, res) => {
   if (Number(req.params.id) > tours.length) {
     return res.status(404).json({ status: 'error', message: 'Invalid ID' });
   }
 
   res.status(204).json({ status: 'success', message: 'Tour Deleted' });
-});
+};
+
+app.route('/api/v1/tours').get(getAllTours).post(addNewTour);
+app
+  .route('/api/v1/tours/:id')
+  .patch(updateTour)
+  .delete(deleteTour)
+  .get(getIndividualTour);
+// app.get('/api/v1/tours', getAllTours);
+// To make a variable in an endpoint nullable use the null operator in javascript (?) after the variable name e.g /:x?
+// app.get('/api/v1/tours/:id/:x?', getIndividualTour);
+// app.post('/api/v1/tours', addNewTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
 
 const port = 8000;
 app.listen(port, () => {
