@@ -4,11 +4,13 @@
   "description": "Learning Express framework for NodeJS, digging deeper into the Express framework and having a good time learnig about Node in general",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start:developement": "nodemon server.js",
+    "start:production": "APP_ENV=production nodemon server.js"
   },
   "author": "Divinewill Eze Okoro",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "morgan": "^1.10.0"
   }

@@ -5,7 +5,10 @@ const userRouter = require('./routes/userRouter');
 
 const app = express();
 // Node middleware
-app.use(morgan('dev'));
+console.log(process.env.APP_ENV);
+if (process.env.APP_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
 app.use((req, res, next) => {
