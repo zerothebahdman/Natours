@@ -14,6 +14,33 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+const tourSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Opps! Tour name can't be empty"],
+    unique: true,
+  },
+  price: { type: Number, required: [true, "Opps! price can't be empty"] },
+  rating: { type: Number, default: 3 },
+});
+
+const Tour = mongoose.model('Tour', tourSchema);
+
+const newTour = new Tour({
+  name: 'The Park Camper',
+  price: 500,
+});
+
+newTour
+  .save()
+  .then((tour) => {
+    console.log(tour);
+  })
+  .catch((err) => {
+    console.log(`Error 💣 ${err}`);
+  });
+
 const port = process.env.APP_PORT || 8000;
 app.listen(port, () => {
   console.log(`App is running on port ${port}....`);
