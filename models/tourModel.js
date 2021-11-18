@@ -13,7 +13,7 @@ const tourSchema = new mongoose.Schema({
   },
   maxGroupSize: {
     type: Number,
-    required: [true, 'Opps! Max group size can be empty'],
+    required: [true, `Opps! Max group size can't be empty`],
   },
   difficulty: {
     type: String,
