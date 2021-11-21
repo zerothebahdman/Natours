@@ -53,6 +53,11 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+// Document middleware runs after the .save() or .create() method
+// tourSchema.post('save', function (doc, next) {
+//   console.log(doc);
+//   next();
+// });
 
 // Query middleware
 // Use a regex to find all strings that match find or starts with find
@@ -62,11 +67,11 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-// Document middleware runs after the .save() or .create() method
-// tourSchema.post('save', function (doc, next) {
-//   console.log(doc);
-//   next();
-// });
+// Aggregation middleware
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secrectTour: { $ne: true } } });
+  next();
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
