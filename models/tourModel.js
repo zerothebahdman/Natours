@@ -5,9 +5,18 @@ const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Opps! Tour name can't be empty"],
       unique: true,
       trim: true,
+      // Mongoose validators for strings
+      required: [true, "Opps! Tour name can't be empty"],
+      maxlength: [
+        40,
+        'Opps! A tour name must have a length less than or equal to 40',
+      ],
+      minlength: [
+        40,
+        'Opps! A tour name must have a length greater than or equal to 40',
+      ],
     },
     slug: { type: String, unique: true, trim: true },
     duration: {
@@ -21,9 +30,21 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'Opps! Tour must have a difficulty level'],
+      // Mongoose validators for strings
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message:
+          'Opps! You can only specify either one of easy, medium or difficult',
+      },
     },
     price: { type: Number, required: [true, "Opps! price can't be empty"] },
-    ratingsAverage: { type: Number, default: 3 },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      // Mongoose validators for numbers
+      min: [1, `Opps! Ratings must be above 1.0`],
+      max: [5, `Opps! Rating must be below 5.0`],
+    },
     ratingsQuantity: { type: Number, default: 0 },
     priceDiscount: Number,
     summary: {
