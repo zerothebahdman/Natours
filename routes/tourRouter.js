@@ -7,6 +7,7 @@ const {
   getTour,
   alliasTop5Tours,
   getToursStats,
+  getMonthlyPlan,
   //checkId,
   //checkBody,
 } = require('../controllers/toursController');
@@ -19,5 +20,6 @@ router.route('/').get(getAllTours).post(addNewTour);
 router.route('/top-5-tours').get(alliasTop5Tours, getAllTours);
 router.route('/tour-stats').get(getToursStats);
 router.route('/:id').patch(updateTour).delete(deleteTour).get(getTour);
+router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 module.exports = router;
