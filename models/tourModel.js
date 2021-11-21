@@ -36,6 +36,7 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     created_at: { type: Date, default: Date.now(), select: false },
     startDates: [Date],
+    secretTours: { type: Boolean, default: false },
   },
   {
     toJSON: { virtuals: true },
@@ -50,6 +51,14 @@ tourSchema.virtual('durationWeeks').get(function () {
 // Document middleware runs before the .save() or .create() method, this wont work for findByIdAndUpdate
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// Query middleware
+// Use a regex to find all strings that match find or starts with find
+tourSchema.pre(/^find/, function (next) {
+  // tourSchema.pre('find', function (next) {
+  this.find({ secretTours: { $ne: true } });
   next();
 });
 
