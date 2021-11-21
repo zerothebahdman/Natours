@@ -65,3 +65,44 @@ exports.deleteTour = async (req, res) => {
     res.status(404).json({ status: 'error', message: err.message });
   }
 };
+
+// Aggragation Pipeline: Mathching anf grouping data
+// An aggregation pipeline consists of one or more stages that process documents:
+// Each stage performs an operation on the input documents. For example, a stage can filter documents, group documents, and calculate values.
+// The documents that are output from one stage are input to the next stage.
+// An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.
+exports.getToursStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      // The $match stage: Filters the documents to those with a ratingsAverage greater than or equal to 4.5 then Outputs the filtered documents to the $group stage.
+      // NB - You can chain multiple match methods to filter documents.
+      { $match: { ratingsAverage: { $gte: 4.5 } } },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          numberTours: { $sum: 1 },
+          totalRating: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+          totalPrice: { $sum: '$price' },
+        },
+      },
+      {
+        $sort: {
+          avgPrice: -1,
+        },
+      },
+      // {
+      //   $match: {
+      //     _id: { $ne: `EASY` },
+      //   },
+      // },
+    ]);
+
+    res.status(200).json({ status: 'success', data: stats });
+  } catch (err) {
+    res.status(404).json({ status: 'error', message: err.message });
+  }
+};
