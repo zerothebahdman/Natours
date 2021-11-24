@@ -2,10 +2,12 @@ const express = require('express');
 const morgan = require('morgan');
 const tourRouter = require('./routes/TourRouter');
 const userRouter = require('./routes/UserRouter');
+const AppError = require('./utils/AppError');
+const GlobalErrorHandler = require('./controllers/GlobalErrorHandlerController');
 
 const app = express();
 // Node middleware
-console.log(process.env.APP_ENV);
+//console.log(process.env.APP_ENV);
 if (process.env.APP_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -25,22 +27,15 @@ app.use('/api/v1/users', userRouter);
 
 // Handling Unhandled Routes.
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: `fail`,
-    message: `404 ${req.originalUrl} not found on the server.`,
-  });
+  // res.status(404).json({
+  //   status: `fail`,
+  //   message: `404 ${req.originalUrl} not found on the server.`,
+  // });
+  next(new AppError(`Cant find ${req.originalUrl} on the server.`, 404));
 });
 
 // Implelmenting global error handling middleware.
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 500;
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(GlobalErrorHandler);
 
 // app.get('/api/v1/tours', getAllTours);
 // To make a variable in an endpoint nullable use the null operator in javascript (?) after the variable name e.g /:x?

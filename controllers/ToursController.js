@@ -1,5 +1,5 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
+const APIFeatures = require('../utils/ApiFeatures');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
