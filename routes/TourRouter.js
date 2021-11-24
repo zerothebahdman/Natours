@@ -10,7 +10,7 @@ const {
   getMonthlyPlan,
   //checkId,
   //checkBody,
-} = require('../controllers/toursController');
+} = require('../controllers/ToursController');
 
 const router = express.Router();
 
