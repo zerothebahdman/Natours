@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/ApiFeatures');
+const AppError = require('../utils/AppError');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
@@ -24,9 +25,14 @@ exports.getAllTours = async (req, res) => {
   }
 };
 
-exports.getTour = async (req, res) => {
+exports.getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id);
+    if (!tour) {
+      return next(
+        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
+      );
+    }
     res.status(200).json({ status: 'success', data: { tour } });
   } catch (err) {
     res.status(404).json({ status: 'Error', message: err.message });
@@ -45,21 +51,31 @@ exports.addNewTour = async (req, res) => {
   }
 };
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = async (req, res, next) => {
   try {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+    if (!updatedTour) {
+      return next(
+        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
+      );
+    }
     res.status(200).json({ status: 'success', data: updatedTour });
   } catch (err) {
     res.status(404).json({ status: 'Error', message: err.message });
   }
 };
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = async (req, res, next) => {
   try {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+    if (!tour) {
+      return next(
+        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
+      );
+    }
     res.status(204).json({ status: 'success', message: 'Tour Deleted' });
   } catch (err) {
     res.status(404).json({ status: 'error', message: err.message });
