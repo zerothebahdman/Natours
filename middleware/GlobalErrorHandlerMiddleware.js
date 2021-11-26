@@ -30,6 +30,8 @@ const sendProductionError = (err, res) => {
     });
   }
 };
+
+// Handling production errors
 const handleDbCastError = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
@@ -40,6 +42,13 @@ const handleDuplicateDbFields = (err) => {
   const message = `A tour already exists with this value: ${value}, Please change`;
   return new AppError(message, 400);
 };
+
+const handleValidationError = (err) => {
+  const errors = Object.values(err.errors).map((value) => value.message);
+  const message = `Invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+};
+// End of production error handling
 
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -54,11 +63,9 @@ module.exports = (err, req, res, next) => {
     error.code = err.code;
     error.KeyValue = err.keyValue;
 
-    if (error.name === `CastError`) {
-      error = handleDbCastError(error);
-    }
-
+    if (error.name === `CastError`) error = handleDbCastError(error);
     if (error.code === 11000) error = handleDuplicateDbFields(error);
+    if (error.name === `ValidationError`) error = handleValidationError(error);
     sendProductionError(error, res);
   }
 };

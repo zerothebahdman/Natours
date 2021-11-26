@@ -3,7 +3,7 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/TourRouter');
 const userRouter = require('./routes/UserRouter');
 const AppError = require('./utils/AppError');
-const GlobalErrorHandler = require('./controllers/GlobalErrorHandlerController');
+const GlobalErrorHandler = require('./middleware/GlobalErrorHandlerMiddleware');
 
 const app = express();
 // Node middleware

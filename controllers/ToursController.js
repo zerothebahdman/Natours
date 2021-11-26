@@ -1,7 +1,7 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/ApiFeatures');
 const AppError = require('../utils/AppError');
-const GlobalErrorHandlerController = require('./GlobalErrorHandlerController');
+const GlobalErrorHandlerController = require('../middleware/GlobalErrorHandlerMiddleware');
 const CatchAsyncErrors = require('../utils/CatchAsyncError');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
