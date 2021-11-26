@@ -1,6 +1,8 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/ApiFeatures');
 const AppError = require('../utils/AppError');
+const GlobalErrorHandlerController = require('./GlobalErrorHandlerController');
+const CatchAsyncErrors = require('../utils/CatchAsyncError');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
@@ -9,47 +11,43 @@ exports.alliasTop5Tours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const tours = await features.query;
-    res
-      .status(200)
-      .json({ status: 'success', results: tours.length, data: { tours } });
-  } catch (err) {
-    res.status(404).json({ status: 'Error', message: err.message });
-  }
-};
+// return catch errors from async functions
 
-exports.getTour = async (req, res, next) => {
-  try {
-    const tour = await Tour.findById(req.params.id);
-    if (!tour) {
-      return next(
-        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
-      );
-    }
-    res.status(200).json({ status: 'success', data: { tour } });
-  } catch (err) {
-    res.status(404).json({ status: 'Error', message: err.message });
-  }
-};
+exports.getAllTours = CatchAsyncErrors(async (req, res, next) => {
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const tours = await features.query;
+  res
+    .status(200)
+    .json({ status: 'success', results: tours.length, data: { tours } });
+});
 
-exports.addNewTour = async (req, res) => {
-  try {
-    // const newTour = await new Tour(req.body);
-    // newTour.save();
-    const newTour = await Tour.create(req.body);
-    res.status(201).json({ status: 'success', data: { tours: newTour } });
-  } catch (err) {
-    console.log(`ERROR 💣 ${err}`);
-    res.status(400).json({ status: 'fail', message: err.message });
+exports.getTour = CatchAsyncErrors(async (req, res, next) => {
+  const tour = await Tour.findById(req.params.id);
+  if (!tour) {
+    return next(
+      new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
+    );
   }
-};
+  res.status(200).json({ status: 'success', data: { tour } });
+});
+
+exports.addNewTour = CatchAsyncErrors(async (req, res, next) => {
+  const newTour = await Tour.create(req.body);
+  res.status(201).json({ status: 'success', data: { tours: newTour } });
+  // try {
+  //   // const newTour = await new Tour(req.body);
+  //   // newTour.save();
+  //   const newTour = await Tour.create(req.body);
+  //   res.status(201).json({ status: 'success', data: { tours: newTour } });
+  // } catch (err) {
+  //   console.log(`ERROR 💣 ${err}`);
+  //   GlobalErrorHandlerController(err, req, res, next);
+  // }
+});
 
 exports.updateTour = async (req, res, next) => {
   try {
@@ -64,7 +62,7 @@ exports.updateTour = async (req, res, next) => {
     }
     res.status(200).json({ status: 'success', data: updatedTour });
   } catch (err) {
-    res.status(404).json({ status: 'Error', message: err.message });
+    GlobalErrorHandlerController(err, req, res, next);
   }
 };
 
@@ -78,7 +76,7 @@ exports.deleteTour = async (req, res, next) => {
     }
     res.status(204).json({ status: 'success', message: 'Tour Deleted' });
   } catch (err) {
-    res.status(404).json({ status: 'error', message: err.message });
+    GlobalErrorHandlerController(err, req, res, next);
   }
 };
 
@@ -87,7 +85,7 @@ exports.deleteTour = async (req, res, next) => {
 // Each stage performs an operation on the input documents. For example, a stage can filter documents, group documents, and calculate values.
 // The documents that are output from one stage are input to the next stage.
 // An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.
-exports.getToursStats = async (req, res) => {
+exports.getToursStats = async (req, res, next) => {
   try {
     const stats = await Tour.aggregate([
       // The $match stage: Filters the documents to those with a ratingsAverage greater than or equal to 4.5 then Outputs the filtered documents to the $group stage.
@@ -119,7 +117,7 @@ exports.getToursStats = async (req, res) => {
 
     res.status(200).json({ status: 'success', data: stats });
   } catch (err) {
-    res.status(404).json({ status: 'error', message: err.message });
+    GlobalErrorHandlerController(err, req, res, next);
   }
 };
 
