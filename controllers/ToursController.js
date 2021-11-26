@@ -1,4 +1,4 @@
-const Tour = require('../models/tourModel');
+const Tour = require('../models/TourModel');
 const APIFeatures = require('../utils/ApiFeatures');
 const AppError = require('../utils/AppError');
 const GlobalErrorHandlerController = require('../middleware/GlobalErrorHandlerMiddleware');
