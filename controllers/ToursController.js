@@ -1,8 +1,8 @@
 const Tour = require('../models/TourModel');
-const APIFeatures = require('../utils/ApiFeatures');
-const AppError = require('../utils/AppError');
+const APIFeatures = require('../utils/ApiFeaturesClass');
+const AppError = require('../utils/AppErrorClass');
 const GlobalErrorHandlerController = require('../middleware/GlobalErrorHandlerMiddleware');
-const CatchAsyncErrors = require('../utils/CatchAsyncError');
+const CatchAsyncErrors = require('../utils/CatchAsyncErrorClass');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
