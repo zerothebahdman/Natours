@@ -39,6 +39,7 @@ const UserModel = new mongoose.Schema({
 
       message: `Password's do not match`,
     },
+    passwordUpdatedAt: Date,
   },
 });
 
@@ -61,5 +62,17 @@ UserModel.methods.verifiedPassword = async (
   incomingUserPassword,
   storedUserPassword
 ) => await bcrypt.compare(incomingUserPassword, storedUserPassword);
+
+UserModel.methods.changedPasswordAfterSettingToken = (jwtTimestamp) => {
+  if (this.passwordUpdatedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordUpdatedAt.getTime() / 1000,
+      10
+    );
+    console.log(changedTimestamp, jwtTimestamp);
+    return jwtTimestamp < changedTimestamp;
+  }
+  return false;
+};
 const User = mongoose.model('User', UserModel);
 module.exports = User;
