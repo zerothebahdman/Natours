@@ -2,7 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const tourRouter = require('./routes/TourRouter');
 const userRouter = require('./routes/UserRouter');
-const AppError = require('./utils/AppError');
+const AppError = require('./utils/AppErrorClass');
 const GlobalErrorHandler = require('./middleware/GlobalErrorHandlerMiddleware');
 
 const app = express();

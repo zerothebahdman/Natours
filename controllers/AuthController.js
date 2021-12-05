@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 const AppError = require('../utils/AppErrorClass');
 
-const jwtToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET_TOKEN, {
+const jwtToken = (id, email) =>
+  jwt.sign({ id, email }, process.env.JWT_SECRET_TOKEN, {
     expiresIn: process.env.JWT_EXPIRATION,
   });
 exports.signup = async (req, res, next) => {
@@ -15,7 +15,7 @@ exports.signup = async (req, res, next) => {
       password: req.body.password,
       password_confirmation: req.body.password_confirmation,
     });
-    const token = jwtToken(newUser._id);
+    const token = jwtToken(newUser._id, newUser.email);
     res.status(201).json({ status: `success`, token, data: { newUser } });
   } catch (err) {
     return next(new AppError(err.message, err.status));
@@ -40,7 +40,7 @@ exports.login = async (req, res, next) => {
     return next(new AppError(`Incorrect email or password`, 401));
   }
   // send JWT token to client
-  const token = jwtToken(user._id);
+  const token = jwtToken(user._id, user.email);
   res.status(200).json({ status: 'success', token });
 };
 
