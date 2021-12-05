@@ -42,3 +42,24 @@ exports.login = async (req, res, next) => {
   const token = jwtToken(user._id);
   res.status(200).json({ status: 'success', token });
 };
+
+exports.protectRoute = async (req, res, next) => {
+  try {
+    // Get the token for the current user
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) next(new AppError(`You are not logged in. Please login`, 401));
+    // Verify the token
+    // Check if user still exists
+    // Check if user changed password after token was isssued
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
+  next();
+};
