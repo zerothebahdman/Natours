@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const { createHash, randomBytes } = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const UserModel = new mongoose.Schema({
   name: {
@@ -22,6 +22,7 @@ const UserModel = new mongoose.Schema({
       8,
       `Opps! your password needs to be at least 8 characters long`,
     ],
+    select: false,
   },
   password_confirmation: {
     type: String,
@@ -49,17 +50,16 @@ UserModel.pre('save', async function (next) {
   }
 
   // Hashing users password using node crypto module
-  const salt = randomBytes(16).toString('base64');
-  const hashedpassword = createHash('sha256')
-    .update(this.password)
-    .digest('base64');
-
-  // const salt = randomBytes(16).toString('hex');
-  // const hashedPassword = scryptSync(this.password, salt, 64);
-  this.password = `${salt}${hashedpassword}`;
+  this.password = await bcrypt.hash(this.password, 13);
 
   // Delete the password confirm field from the database.
   this.password_confirmation = undefined;
+  next();
 });
+// Define an instance method to check password
+UserModel.methods.verifiedPassword = async (
+  incomingUserPassword,
+  storedUserPassword
+) => await bcrypt.compare(incomingUserPassword, storedUserPassword);
 const User = mongoose.model('User', UserModel);
 module.exports = User;
