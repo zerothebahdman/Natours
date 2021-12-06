@@ -1,3 +1,4 @@
+const { randomBytes, createHash } = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -44,8 +45,10 @@ const UserModel = new mongoose.Schema({
 
       message: `Password's do not match`,
     },
-    passwordUpdatedAt: Date,
   },
+  password_updated_at: Date,
+  password_reset_token: String,
+  password_reset_token_expires_at: Date,
 });
 
 // Manipulate user password before its saved to the database
@@ -68,17 +71,33 @@ UserModel.methods.verifiedPassword = async (
   storedUserPassword
 ) => await bcrypt.compare(incomingUserPassword, storedUserPassword);
 
-UserModel.methods.changedPasswordAfterSettingToken = (jwtTimestamp) => {
+UserModel.methods.changed_password_after_setting_token = function (
+  jwtTimestamp
+) {
   if (this.passwordUpdatedAt) {
     const changedTimestamp = parseInt(
       this.passwordUpdatedAt.getTime() / 1000,
       10
     );
-    console.log(changedTimestamp, jwtTimestamp);
+    // console.log(changedTimestamp, jwtTimestamp);
     return jwtTimestamp < changedTimestamp;
     // This returns either true or false
   }
   return false;
+};
+
+UserModel.methods.change_password_reset_token = async function () {
+  // generates the token that will be sent to the user
+  const token = randomBytes(32).toString('base64');
+  // hashes the token and stores the token in the database
+  this.password_reset_token = createHash('sha256')
+    .update(token)
+    .digest('base64');
+  console.log({ token }, this.password_reset_token);
+  // creates an expiration time for the password reset token
+  this.password_reset_token_expires_at = Date.now() + 10 * 60 * 1000;
+  // returns the plain token to be sent to the user via email
+  return token;
 };
 const User = mongoose.model('User', UserModel);
 module.exports = User;

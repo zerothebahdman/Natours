@@ -1,3 +1,4 @@
+const { createHash, randomBytes } = require(`crypto`);
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
@@ -70,7 +71,7 @@ exports.protectRoute = async (req, res, next) => {
     }
 
     // 4) Check if user changed password after token was isssued
-    if (freshUser.changedPasswordAfterSettingToken(decodedToken.iat))
+    if (freshUser.changed_password_after_setting_token(decodedToken.iat))
       next(
         new AppError(
           `User recently changed their password, Please login again`,
@@ -99,3 +100,27 @@ exports.restrictTo =
 
     next();
   };
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    // 1) Get user based on email address
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return next(
+        new AppError(
+          `Opps! user with this email (${req.body.email}) does not exit`,
+          404
+        )
+      );
+    }
+    // 2) Generate random reset token
+    const resetToken = user.change_password_reset_token();
+    console.log(resetToken);
+    // -----------validateBeforeSave set to false will deactivate all validators that we have in our schemas
+    await user.save({ validateBeforeSave: false });
+    // 3) Send the token back to user
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
+};
+exports.resetPassword = (req, res, next) => {};
