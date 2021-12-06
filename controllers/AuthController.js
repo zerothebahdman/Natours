@@ -12,6 +12,7 @@ exports.signup = async (req, res, next) => {
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
+      role: req.body.role,
       password: req.body.password,
       password_confirmation: req.body.password_confirmation,
     });
@@ -83,3 +84,18 @@ exports.protectRoute = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
+
+// ----Implementing Authorization: User roles and permission----
+// create an arbitrary function that returns the authorization middleware function
+exports.restrictTo =
+  (...roles) =>
+  // roles in this instance is a array coming from the tour route ['admin', 'lead-guide']
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError(`You dont have permission to perform this action`, 403)
+      );
+    }
+
+    next();
+  };

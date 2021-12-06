@@ -15,6 +15,11 @@ const UserModel = new mongoose.Schema({
     validate: [validator.isEmail, 'Opps! you need to specify a valid email'],
   },
   profile_photo: String,
+  role: {
+    type: String,
+    enum: ['admin', 'user', 'guide', 'lead-guide'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: true,
@@ -71,6 +76,7 @@ UserModel.methods.changedPasswordAfterSettingToken = (jwtTimestamp) => {
     );
     console.log(changedTimestamp, jwtTimestamp);
     return jwtTimestamp < changedTimestamp;
+    // This returns either true or false
   }
   return false;
 };

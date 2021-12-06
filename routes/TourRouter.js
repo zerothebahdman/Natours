@@ -12,7 +12,7 @@ const {
   //checkBody,
 } = require('../controllers/ToursController');
 
-const { protectRoute } = require('../controllers/AuthController');
+const { protectRoute, restrictTo } = require('../controllers/AuthController');
 
 const router = express.Router();
 
@@ -21,7 +21,11 @@ const router = express.Router();
 router.route('/').get(protectRoute, getAllTours).post(addNewTour);
 router.route('/top-5-tours').get(alliasTop5Tours, getAllTours);
 router.route('/tour-stats').get(getToursStats);
-router.route('/:id').patch(updateTour).delete(deleteTour).get(getTour);
+router
+  .route('/:id')
+  .patch(protectRoute, restrictTo('admin', 'lead-guide'), updateTour)
+  .delete(protectRoute, restrictTo('admin', 'lead-guide'), deleteTour)
+  .get(getTour);
 router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 module.exports = router;
