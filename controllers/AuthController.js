@@ -47,6 +47,7 @@ exports.login = async (req, res, next) => {
   res.status(200).json({ status: 'success', token });
 };
 
+// Middleware to store authenticated user information
 exports.protectRoute = async (req, res, next) => {
   try {
     // 1) Get the token for the current user
