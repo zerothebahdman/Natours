@@ -86,7 +86,7 @@ UserModel.methods.changed_password_after_setting_token = function (
   return false;
 };
 
-UserModel.methods.change_password_reset_token = async function () {
+UserModel.methods.change_password_reset_token = function () {
   // generates the token that will be sent to the user
   const token = randomBytes(32).toString('base64');
   // hashes the token and stores the token in the database

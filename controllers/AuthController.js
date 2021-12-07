@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 const AppError = require('../utils/AppErrorClass');
+const sendEmail = require('../utils/email');
 
 const jwtToken = (id, email) =>
   jwt.sign({ id, email }, process.env.JWT_SECRET_TOKEN, {
@@ -102,9 +103,9 @@ exports.restrictTo =
   };
 
 exports.forgotPassword = async (req, res, next) => {
+  // 1) Get user based on email address
+  const user = await User.findOne({ email: req.body.email });
   try {
-    // 1) Get user based on email address
-    const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return next(
         new AppError(
@@ -119,7 +120,26 @@ exports.forgotPassword = async (req, res, next) => {
     // -----------validateBeforeSave set to false will deactivate all validators that we have in our schemas
     await user.save({ validateBeforeSave: false });
     // 3) Send the token back to user
+    const resetUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/${resetToken}`;
+
+    const message = `Find below your password reset link.\n ${resetUrl}\n Your password reset tokern is valid for 10 min. \n If you didn't forget your password, please ignore this email.`;
+
+    await sendEmail({
+      email: user.email,
+      subject: `[${user.name}], Password reset link`,
+      message,
+    });
+
+    res.status(200).json({
+      status: `success`,
+      message: `Token has been sent to email successfully`,
+    });
   } catch (err) {
+    user.password_reset_token = undefined;
+    user.password_reset_token_expires_at = undefined;
+    await user.save({ validateBeforeSave: false });
     return next(new AppError(err.message, err.status));
   }
 };
