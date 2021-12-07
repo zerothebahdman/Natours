@@ -170,3 +170,33 @@ exports.resetPassword = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
+
+exports.updatePassword = async (req, res, next) => {
+  try {
+    // 1) Get the user form the collection
+    const user = await User.findOne({ id: req.user._id }).select('+password');
+    // 2) Check that the provided password is correct
+    const checkHashedPassword = await user.verifiedPassword(
+      req.body.current_password,
+      user.password
+    );
+    if (!checkHashedPassword) {
+      return next(
+        new AppError(
+          `The provided password is incorrect. Please provide the correct password`,
+          401
+        )
+      );
+    }
+    // 3) Update the user password
+    user.password = req.body.password;
+    user.password_confirmation = req.body.password_confirmation;
+    user.password_updated_at = Date.now() - 1000;
+    await user.save();
+    // 4) login the user and set new JWT token for user
+    const token = jwtToken(user._id, user.email);
+    res.status(201).json({ status: `success`, token });
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
+};
