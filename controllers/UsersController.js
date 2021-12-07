@@ -3,7 +3,7 @@ const AppError = require('../utils/AppErrorClass');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const user = await User.find();
+    const user = await User.find({ active: { $ne: false } });
     res.status(200).json({ status: `success`, user });
   } catch (err) {
     return next(new AppError(err.message, 404));
@@ -38,6 +38,13 @@ exports.updateUser = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
-exports.deleteUser = (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Route Pending' });
+exports.deleteUser = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.user._id, { active: false });
+    res
+      .status(204)
+      .json({ status: 'success', message: 'Deleted Successfully' });
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
 };

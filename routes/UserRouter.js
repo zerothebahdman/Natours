@@ -25,6 +25,7 @@ router.patch('/reset-password/:token', resetPassword);
 
 router.patch('/update-password', protectRoute, updatePassword);
 router.patch('/update-account', protectRoute, updateUser);
+router.delete('/delete-account', protectRoute, deleteUser);
 
 router.route('/').get(getAllUsers).post(addNewUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);

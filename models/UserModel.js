@@ -49,6 +49,11 @@ const UserModel = new mongoose.Schema({
   password_updated_at: Date,
   password_reset_token: String,
   password_reset_token_expires_at: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // Manipulate user password before its saved to the database
@@ -65,6 +70,13 @@ UserModel.pre('save', async function (next) {
   this.password_confirmation = undefined;
   next();
 });
+
+//  this is a querry middleware that runs before every querry
+// UserModel.pre(/^find/, function (next) {
+//   this.find({ active: { $ne: false } });
+//   next();
+// });
+
 // Define an instance method to check password
 UserModel.methods.verifiedPassword = async (
   incomingUserPassword,
