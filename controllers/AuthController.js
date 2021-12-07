@@ -1,4 +1,4 @@
-const { createHash, randomBytes } = require(`crypto`);
+const { createHash } = require(`crypto`);
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
@@ -122,9 +122,9 @@ exports.forgotPassword = async (req, res, next) => {
     // 3) Send the token back to user
     const resetUrl = `${req.protocol}://${req.get(
       'host'
-    )}/api/v1/${resetToken}`;
+    )}/api/v1/reset-password/${resetToken}`;
 
-    const message = `Find below your password reset link.\n ${resetUrl}\n Your password reset tokern is valid for 10 min. \n If you didn't forget your password, please ignore this email.`;
+    const message = `Find below your password reset link.\n\n ${resetUrl}\n\n Your password reset tokern is valid for 10 min. \n\n\n If you didn't forget your password, please ignore this email.`;
 
     await sendEmail({
       email: user.email,
@@ -143,4 +143,30 @@ exports.forgotPassword = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = async (req, res, next) => {
+  try {
+    // 1) Get user based on token
+    const hashedToken = createHash('sha256')
+      .update(req.params.token)
+      .digest('base64');
+    const user = await User.findOne({
+      password_reset_token: hashedToken,
+      password_reset_token_expires_at: { $gt: Date.now() },
+    });
+    // 2) If the token has not expired and the user exists, then change password
+    if (!user)
+      return next(new AppError(`The password reset token has expired`, 400));
+    // 3) Update the field password_updated_at on the db
+    user.password = req.body.password;
+    user.password_confirmation = req.body.password_confirmation;
+    user.password_reset_token = undefined;
+    user.password_reset_token_expires_at = undefined;
+    user.password_updated_at = Date.now() - 1000;
+    await user.save();
+    // 4) Login the user and set new JWT token for user
+    const token = jwtToken(user._id, user.email);
+    res.status(201).json({ status: `success`, token });
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
+};
