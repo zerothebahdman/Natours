@@ -17,8 +17,8 @@ exports.getUser = (req, res) => {
 };
 exports.updateUser = async (req, res, next) => {
   try {
-    // 1) Create error if user tries to update password
     const { password, passwordConfirmation, name, email } = req.body;
+    // 1) Create error if user tries to update password
     if (password || passwordConfirmation) {
       return next(
         new AppError(`You cant edit your password using this endpoint`, 400)

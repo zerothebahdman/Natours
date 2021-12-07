@@ -49,6 +49,9 @@ const UserModel = new mongoose.Schema({
   password_updated_at: Date,
   password_reset_token: String,
   password_reset_token_expires_at: Date,
+  email_verified_at: Date,
+  email_verification_token: String,
+  email_verification_token_expires_at: Date,
   active: {
     type: Boolean,
     default: true,
@@ -97,7 +100,15 @@ UserModel.methods.changed_password_after_setting_token = function (
   }
   return false;
 };
-
+UserModel.methods.verify_user_email = function () {
+  const token = randomBytes(32).toString('base64');
+  this.email_verification_token = createHash('sha256')
+    .update(token)
+    .digest('base64');
+  console.log({ token }, this.email_verification_token);
+  this.email_verification_token_expires_at = Date.now() + 10 * 60 * 1000;
+  return token;
+};
 UserModel.methods.change_password_reset_token = function () {
   // generates the token that will be sent to the user
   const token = randomBytes(32).toString('base64');

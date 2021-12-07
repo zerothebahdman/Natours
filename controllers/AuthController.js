@@ -9,6 +9,40 @@ const jwtToken = (id, email) =>
   jwt.sign({ id, email }, process.env.JWT_SECRET_TOKEN, {
     expiresIn: process.env.JWT_EXPIRATION,
   });
+
+exports.verifyUserEmailToken = async (req, res, next) => {
+  try {
+    // 1) Check that the token was not tempered with
+    const hashedEmailToken = createHash('sha256')
+      .update(req.params.token)
+      .digest('base64');
+    // 2) If the token has not expired and the email is valid verify the email
+    const user = await User.findOne({
+      email_verification_token: hashedEmailToken,
+      email_verification_token_expires_at: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(new AppError(`The email verification link has expired`, 401));
+    }
+
+    // 3, Verify the email
+    user.email_verified_at = Date.now();
+    user.email_verification_token = undefined;
+    user.email_verification_token_expires_at = undefined;
+    user.save({ validateBeforeSave: false });
+
+    // 4) Login the user and set new JWT token for user
+    const token = jwtToken(user._id, user.email);
+    res.status(201).json({
+      status: `success`,
+      message: 'Your email has been verified',
+      token,
+    });
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
+};
 exports.signup = async (req, res, next) => {
   try {
     const newUser = await User.create({
@@ -18,6 +52,21 @@ exports.signup = async (req, res, next) => {
       password: req.body.password,
       password_confirmation: req.body.password_confirmation,
     });
+    const verificationToken = newUser.verify_user_email();
+    await newUser.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/verify-email/${verificationToken}`;
+
+    const message = `Hello, ${newUser.name} you just created an account on Natours.\n\n We need to ensure that the email address you provided is a valid one, so please verify your email address. \n\n\n ${verifyUrl}\n\n If you didnt create this account, please ignore this email`;
+
+    await sendEmail({
+      email: newUser.email,
+      subject: `[Natours] Email Verification Link`,
+      message,
+    });
+
     const token = jwtToken(newUser._id, newUser.email);
     res.status(201).json({ status: `success`, token, data: { newUser } });
   } catch (err) {
