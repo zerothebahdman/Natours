@@ -10,6 +10,17 @@ const jwtToken = (id, email) =>
     expiresIn: process.env.JWT_EXPIRATION,
   });
 
+const cookieOptions = {
+  expires: new Date(
+    Date.now() + process.env.JWT_COOKIES_EXPIRATION * 24 * 60 * 60 * 1000
+  ),
+  // This ensures that the cookie is only set while in production HTTPS mode
+  secure: false,
+  // HttpOnly ensures that the cookie will not be accessed and modified by the browser. This is important to prevent
+  httpOnly: true,
+};
+if (process.env.APP_ENV === 'production') cookieOptions.secure = true;
+
 exports.verifyUserEmailToken = async (req, res, next) => {
   try {
     // 1) Check that the token was not tempered with
@@ -34,6 +45,7 @@ exports.verifyUserEmailToken = async (req, res, next) => {
 
     // 4) Login the user and set new JWT token for user
     const token = jwtToken(user._id, user.email);
+    res.cookie('JWT', token, cookieOptions);
     res.status(201).json({
       status: `success`,
       message: 'Your email has been verified',
@@ -68,6 +80,9 @@ exports.signup = async (req, res, next) => {
     });
 
     const token = jwtToken(newUser._id, newUser.email);
+    res.cookie('JWT', token, cookieOptions);
+    // This will hide the password field from displaying on the req output
+    newUser.password = undefined;
     res.status(201).json({ status: `success`, token, data: { newUser } });
   } catch (err) {
     return next(new AppError(err.message, err.status));
@@ -93,6 +108,7 @@ exports.login = async (req, res, next) => {
   }
   // send JWT token to client
   const token = jwtToken(user._id, user.email);
+  res.cookie('JWT', token, cookieOptions);
   res.status(200).json({ status: 'success', token });
 };
 
