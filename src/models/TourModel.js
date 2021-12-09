@@ -73,6 +73,27 @@ const tourSchema = new mongoose.Schema(
     created_at: { type: Date, default: Date.now(), select: false },
     startDates: [Date],
     secretTours: { type: Boolean, default: false },
+    startLocation: {
+      // GeoJSON - Used for modeling locations or geospatial data
+      type: { type: String, default: 'Point', enum: ['Point'] },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    // This is how we create embedded documents in Mogodb. In this instance Location is going to be embed in this tours document
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
