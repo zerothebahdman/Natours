@@ -43,6 +43,8 @@ const tourSchema = new mongoose.Schema(
       },
     },
     price: { type: Number, required: [true, "Opps! price can't be empty"] },
+    // Refrensing users on tourSchema using child refrencing
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     ratingsAverage: {
       type: Number,
       default: 4.5,
@@ -110,6 +112,14 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// Embeding users into tours
+// tourSchema.pre('save', async function (next) {
+//   const guides = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guides);
+//   next();
+// });
+
 // Document middleware runs after the .save() or .create() method
 // tourSchema.post('save', function (doc, next) {
 //   console.log(doc);
