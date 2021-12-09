@@ -8,7 +8,7 @@ process.on('uncaughtException', (err) => {
 });
 
 dotenv.config({ path: `${__dirname}/.env` });
-const app = require('./app');
+const app = require('./src/app');
 
 const db = process.env.ATLAS_DB.replace('<PASSWORD>', process.env.DB_PASSWORD);
 mongoose
