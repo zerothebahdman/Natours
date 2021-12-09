@@ -2,7 +2,7 @@
 
 ## Natours Data Model
 
-[Natours Data Model](https://res.cloudinary.com/sqiish/image/upload/v1639056418/Natours_Data_Model_epy33m.png)
+![Natours Data Model](https://res.cloudinary.com/sqiish/image/upload/v1639056418/Natours_Data_Model_epy33m.png)
 
 ## When to embedded/denormalization || refrencing/normalization
 
