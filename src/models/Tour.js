@@ -43,8 +43,8 @@ const tourSchema = new mongoose.Schema(
       },
     },
     price: { type: Number, required: [true, "Opps! price can't be empty"] },
-    // Refrensing users on tourSchema using child refrencing
-    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    // Refrensing users on tourSchema using child refrencing (Creating RELATIONSHIPS in mongodb)
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], //Ref: Creates a refrence to another model, in this intance its the User model
     ratingsAverage: {
       type: Number,
       default: 4.5,

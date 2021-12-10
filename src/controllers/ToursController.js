@@ -1,4 +1,4 @@
-const Tour = require('../models/TourModel');
+const Tour = require('../models/Tour');
 const APIFeatures = require('../utils/ApiFeaturesClass');
 const AppError = require('../utils/AppErrorClass');
 const GlobalErrorHandlerController = require('../middleware/GlobalErrorHandlerMiddleware');
@@ -19,14 +19,22 @@ exports.getAllTours = CatchAsyncErrors(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
-  const tours = await features.query;
+  // .populate({ path: 'guides', select: '-__v -password_updated_at',}) will populate || load relationships between documents. Path in this instance holds the name of the field in the database that contains the _id of the other document.
+  const tours = await features.query.populate({
+    path: 'guides',
+    select: '-__v -password_updated_at',
+  });
   res
     .status(200)
     .json({ status: 'success', results: tours.length, data: { tours } });
 });
 
 exports.getTour = CatchAsyncErrors(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  // .populate({ path: 'guides', select: '-__v -password_updated_at',}) will populate || load relationships between documents. Path in this instance holds the name of the field in the database that contains the _id of the other document.
+  const tour = await Tour.findById(req.params.id).populate({
+    path: 'guides',
+    select: '-__v -password_updated_at',
+  });
   if (!tour) {
     return next(
       new AppError(`Opps! No tour found with id (${req.params.id})`, 404)

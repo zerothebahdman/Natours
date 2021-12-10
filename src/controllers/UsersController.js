@@ -1,4 +1,4 @@
-const User = require('../models/UserModel');
+const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
 
 exports.getAllUsers = async (req, res, next) => {

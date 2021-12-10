@@ -1,7 +1,7 @@
 const { createHash } = require(`crypto`);
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-const User = require('../models/UserModel');
+const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
 const sendEmail = require('../utils/email');
 
@@ -112,7 +112,7 @@ exports.login = async (req, res, next) => {
   res.status(200).json({ status: 'success', token });
 };
 
-// Middleware to store authenticated user information
+// Middleware to store authenticated user information and also prevent non authenticated users from proteted routes
 exports.protectRoute = async (req, res, next) => {
   try {
     // 1) Get the token for the current user
