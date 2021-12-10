@@ -21,6 +21,7 @@ const router = express.Router();
 router.post('/signup', signup);
 router.post('/login', login);
 
+// TODO check why verification link is not working properly
 router.post('/verify-email/:token', verifyUserEmailToken);
 
 router.post('/forgot-password', forgotPassword);

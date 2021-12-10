@@ -6,6 +6,7 @@ const mongoSanitizer = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
+const ReviewRouter = require('./routes/ReviewRouter');
 const tourRouter = require('./routes/TourRouter');
 const userRouter = require('./routes/UserRouter');
 const AppError = require('./utils/AppErrorClass');
@@ -68,6 +69,7 @@ app.use(express.static(`${__dirname}/public`));
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', ReviewRouter);
 
 // Handling Unhandled Routes.
 app.all('*', (req, res, next) => {
