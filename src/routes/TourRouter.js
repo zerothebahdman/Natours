@@ -11,14 +11,18 @@ const {
   //checkId,
   //checkBody,
 } = require('../controllers/ToursController');
+const reviewRouter = require('./ReviewRouter');
 
 const restrictTo = require('../middleware/RolesPermisionMiddleware');
 const auth = require('../middleware/AuthMiddleware');
 
 const router = express.Router();
 
+// Using nested routes with the use() middleware. When this is mounted, all api endpoints in the reviewRouter route will be prefixed with (/:tourId/reviews)
+router.use('/:tourId/reviews', reviewRouter);
+
 // router.param('id', checkId);
-// router.route('/').get(getAllTours).post(checkBody, addNewTour); the (checkbody) is a nodejs middleware that checks if a field is empty. To pass middlewares i a route you add it as the first parameter then the controller function as the second parameter.
+// router.route('/').get(getAllTours).post(checkBody, addNewTour); the (checkbody) is a nodejs middleware that checks if a field is empty. To pass middlewares in a route you add it as the first parameter then the controller function as the second parameter.
 router.route('/').get(auth, getAllTours).post(addNewTour);
 router.route('/top-5-tours').get(alliasTop5Tours, getAllTours);
 router.route('/tour-stats').get(getToursStats);

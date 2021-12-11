@@ -27,7 +27,7 @@ const ReviewSchema = new mongoose.Schema(
 // Query middleware
 // Use a regex to find all strings that match find or starts with find
 ReviewSchema.pre(/^find/, function (next) {
-  this.populate({ path: 'tour', select: 'name' }).populate({
+  this.populate({
     path: 'user',
     select: 'name photo',
   });
