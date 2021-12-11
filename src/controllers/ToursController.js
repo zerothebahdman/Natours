@@ -31,10 +31,12 @@ exports.getAllTours = CatchAsyncErrors(async (req, res, next) => {
 
 exports.getTour = CatchAsyncErrors(async (req, res, next) => {
   // .populate({ path: 'guides', select: '-__v -password_updated_at',}) will populate || load relationships between documents. Path in this instance holds the name of the field in the database that contains the _id of the other document.
-  const tour = await Tour.findById(req.params.id).populate({
-    path: 'guides',
-    select: '-__v -password_updated_at',
-  });
+  const tour = await Tour.findById(req.params.id)
+    .populate({
+      path: 'guides',
+      select: '-__v -password_updated_at',
+    })
+    .populate('reviews');
   if (!tour) {
     return next(
       new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
