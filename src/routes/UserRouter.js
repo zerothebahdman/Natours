@@ -12,9 +12,10 @@ const {
   resetPassword,
   forgotPassword,
   updatePassword,
-  protectRoute,
   verifyUserEmailToken,
 } = require('../controllers/AuthController');
+
+const auth = require('../middleware/AuthMiddleware');
 
 const router = express.Router();
 
@@ -27,9 +28,9 @@ router.post('/verify-email/:token', verifyUserEmailToken);
 router.post('/forgot-password', forgotPassword);
 router.patch('/reset-password/:token', resetPassword);
 
-router.patch('/update-password', protectRoute, updatePassword);
-router.patch('/update-account', protectRoute, updateUser);
-router.delete('/delete-account', protectRoute, deleteUser);
+router.patch('/update-password', auth, updatePassword);
+router.patch('/update-account', auth, updateUser);
+router.delete('/delete-account', auth, deleteUser);
 
 router.route('/').get(getAllUsers).post(addNewUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);

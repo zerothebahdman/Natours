@@ -3,13 +3,14 @@ const {
   getAllReviews,
   createReview,
 } = require('../controllers/ReviewsController');
-const { protectRoute, restrictTo } = require('../controllers/AuthController');
+const auth = require('../middleware/AuthMiddleware');
+const restrictTo = require('../middleware/RolesPermisionMiddleware');
 
 const router = express.Router();
 
 router
   .route('/')
   .get(getAllReviews)
-  .post(protectRoute, restrictTo('user'), createReview);
+  .post(auth, restrictTo('user'), createReview);
 
 module.exports = router;

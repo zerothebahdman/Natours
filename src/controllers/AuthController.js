@@ -1,5 +1,4 @@
 const { createHash } = require(`crypto`);
-const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
@@ -111,62 +110,6 @@ exports.login = async (req, res, next) => {
   res.cookie('JWT', token, cookieOptions);
   res.status(200).json({ status: 'success', token });
 };
-
-// Middleware to store authenticated user information and also prevent non authenticated users from proteted routes
-exports.protectRoute = async (req, res, next) => {
-  try {
-    // 1) Get the token for the current user
-    let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-    if (!token) next(new AppError(`You are not logged in. Please login`, 401));
-
-    // 2) Verify the token
-    const decodedToken = await promisify(jwt.verify)(
-      token,
-      process.env.JWT_SECRET_TOKEN
-    );
-
-    // 3) Check if user still exists
-    const freshUser = await User.findById(decodedToken.id);
-    if (!freshUser) {
-      return next(new AppError(`No user exists with the token`), 401);
-    }
-
-    // 4) Check if user changed password after token was isssued
-    if (freshUser.changed_password_after_setting_token(decodedToken.iat))
-      next(
-        new AppError(
-          `User recently changed their password, Please login again`,
-          401
-        )
-      );
-    // Grants access to protected route
-    req.user = freshUser;
-    next();
-  } catch (err) {
-    return next(new AppError(err.message, err.status));
-  }
-};
-
-// ----Implementing Authorization: User roles and permission----
-// create an arbitrary function that returns the authorization middleware function
-exports.restrictTo =
-  (...roles) =>
-  // roles in this instance is a array coming from the tour route ['admin', 'lead-guide']
-  (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError(`You dont have permission to perform this action`, 403)
-      );
-    }
-
-    next();
-  };
 
 exports.forgotPassword = async (req, res, next) => {
   // 1) Get user based on email address
