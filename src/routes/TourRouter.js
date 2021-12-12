@@ -16,7 +16,7 @@ const reviewRouter = require('./ReviewRouter');
 const restrictTo = require('../middleware/RolesPermisionMiddleware');
 const auth = require('../middleware/AuthMiddleware');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 // Using nested routes with the use() middleware. When this is mounted, all api endpoints in the reviewRouter route will be prefixed with (/:tourId/reviews)
 router.use('/:tourId/reviews', reviewRouter);
