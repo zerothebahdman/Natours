@@ -1,5 +1,6 @@
 const AppError = require('../utils/AppErrorClass');
 const Reviews = require('../models/Reviews');
+const { deleteOne } = require('./FactoryFunctionHandler');
 
 exports.getAllReviews = async (req, res, next) => {
   try {
@@ -28,3 +29,5 @@ exports.createReview = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
+
+exports.deleteReview = deleteOne(Reviews);

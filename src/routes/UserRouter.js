@@ -4,7 +4,8 @@ const {
   addNewUser,
   getUser,
   updateUser,
-  deleteUser,
+  adminDeleteUser,
+  usersDeletesAccount,
 } = require('../controllers/UsersController');
 const {
   signup,
@@ -16,6 +17,7 @@ const {
 } = require('../controllers/AuthController');
 
 const auth = require('../middleware/AuthMiddleware');
+const restrictTo = require('../middleware/RolesPermisionMiddleware');
 
 const router = express.Router();
 
@@ -30,9 +32,13 @@ router.patch('/reset-password/:token', resetPassword);
 
 router.patch('/update-password', auth, updatePassword);
 router.patch('/update-account', auth, updateUser);
-router.delete('/delete-account', auth, deleteUser);
+router.delete('/delete-account', auth, usersDeletesAccount);
 
 router.route('/').get(getAllUsers).post(addNewUser);
-router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+router
+  .route('/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(auth, restrictTo('admin'), adminDeleteUser);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 const Tour = require('../models/Tour');
 const APIFeatures = require('../utils/ApiFeaturesClass');
 const AppError = require('../utils/AppErrorClass');
-const GlobalErrorHandlerController = require('../middleware/GlobalErrorHandlerMiddleware');
 const CatchAsyncErrors = require('../utils/CatchAsyncErrorClass');
+const { deleteOne } = require('./FactoryFunctionHandler');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
@@ -55,7 +55,7 @@ exports.addNewTour = CatchAsyncErrors(async (req, res, next) => {
   //   res.status(201).json({ status: 'success', data: { tours: newTour } });
   // } catch (err) {
   //   console.log(`ERROR 💣 ${err}`);
-  //   GlobalErrorHandlerController(err, req, res, next);
+  //   return next(new AppError(err.message, err.status));
   // }
 });
 
@@ -72,23 +72,12 @@ exports.updateTour = async (req, res, next) => {
     }
     res.status(200).json({ status: 'success', data: updatedTour });
   } catch (err) {
-    GlobalErrorHandlerController(err, req, res, next);
+    return next(new AppError(err.message, err.status));
   }
 };
 
-exports.deleteTour = async (req, res, next) => {
-  try {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-    if (!tour) {
-      return next(
-        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
-      );
-    }
-    res.status(204).json({ status: 'success', message: 'Tour Deleted' });
-  } catch (err) {
-    GlobalErrorHandlerController(err, req, res, next);
-  }
-};
+// A factory function is a function that returns a new object
+exports.deleteTour = deleteOne(Tour);
 
 // Aggragation Pipeline: Mathching anf grouping data
 // An aggregation pipeline consists of one or more stages that process documents:
@@ -127,7 +116,7 @@ exports.getToursStats = async (req, res, next) => {
 
     res.status(200).json({ status: 'success', data: stats });
   } catch (err) {
-    GlobalErrorHandlerController(err, req, res, next);
+    return next(new AppError(err.message, err.status));
   }
 };
 

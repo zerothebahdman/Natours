@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
+const { deleteOne } = require('./FactoryFunctionHandler');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -38,7 +39,8 @@ exports.updateUser = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
-exports.deleteUser = async (req, res, next) => {
+
+exports.usersDeletesAccount = async (req, res, next) => {
   try {
     await User.findByIdAndUpdate(req.user._id, { active: false });
     res
@@ -48,3 +50,5 @@ exports.deleteUser = async (req, res, next) => {
     return next(new AppError(err.message, err.status));
   }
 };
+
+exports.adminDeleteUser = deleteOne(User);
