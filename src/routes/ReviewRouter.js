@@ -3,6 +3,7 @@ const {
   getAllReviews,
   createReview,
   deleteReview,
+  updateReview,
 } = require('../controllers/ReviewsController');
 const auth = require('../middleware/AuthMiddleware');
 const restrictTo = require('../middleware/RolesPermisionMiddleware');
@@ -14,6 +15,6 @@ router.route('/').get(getAllReviews);
 
 // Because mergeParams is set to true we already have /:tourId/reviews prefixed in this endpoint so bascially the api endpoint is /:tourId/reviews/create so if the controller in this insance needs the value of the req.params, it is already passed in the endpoint
 router.route('/create').post(auth, restrictTo('user'), createReview);
-router.route('/:id').delete(deleteReview);
+router.route('/:id').patch(auth, updateReview).delete(auth, deleteReview);
 
 module.exports = router;

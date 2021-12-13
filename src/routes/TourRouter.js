@@ -23,7 +23,7 @@ router.use('/:tourId/reviews', reviewRouter);
 
 // router.param('id', checkId);
 // router.route('/').get(getAllTours).post(checkBody, addNewTour); the (checkbody) is a nodejs middleware that checks if a field is empty. To pass middlewares in a route you add it as the first parameter then the controller function as the second parameter.
-router.route('/').get(auth, getAllTours).post(addNewTour);
+router.route('/').get(getAllTours).post(addNewTour);
 router.route('/top-5-tours').get(alliasTop5Tours, getAllTours);
 router.route('/tour-stats').get(getToursStats);
 router

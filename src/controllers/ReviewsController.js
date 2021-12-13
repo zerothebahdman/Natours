@@ -1,6 +1,6 @@
 const AppError = require('../utils/AppErrorClass');
 const Reviews = require('../models/Reviews');
-const { deleteOne } = require('./FactoryFunctionHandler');
+const { deleteDocument, updateDocument } = require('./FactoryFunctionHandler');
 
 exports.getAllReviews = async (req, res, next) => {
   try {
@@ -30,4 +30,6 @@ exports.createReview = async (req, res, next) => {
   }
 };
 
-exports.deleteReview = deleteOne(Reviews);
+// We implemetd factory functions in this instance to avoid (DRY)
+exports.deleteReview = deleteDocument(Reviews);
+exports.updateReview = updateDocument(Reviews);

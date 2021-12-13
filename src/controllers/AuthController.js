@@ -124,8 +124,7 @@ exports.forgotPassword = async (req, res, next) => {
       );
     }
     // 2) Generate random reset token
-    const resetToken = user.change_password_reset_token();
-    console.log(resetToken);
+    const resetToken = user.change_password_reset_token(); // the change_password_reset_token() is a method defined in the user model
     // -----------validateBeforeSave set to false will deactivate all validators that we have in our schemas
     await user.save({ validateBeforeSave: false });
     // 3) Send the token back to user

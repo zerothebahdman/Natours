@@ -2,7 +2,11 @@ const Tour = require('../models/Tour');
 const APIFeatures = require('../utils/ApiFeaturesClass');
 const AppError = require('../utils/AppErrorClass');
 const CatchAsyncErrors = require('../utils/CatchAsyncErrorClass');
-const { deleteOne } = require('./FactoryFunctionHandler');
+const {
+  deleteDocument,
+  updateDocument,
+  addNewDoc,
+} = require('./FactoryFunctionHandler');
 // Middleware
 exports.alliasTop5Tours = (req, res, next) => {
   req.query.limit = '5';
@@ -45,39 +49,10 @@ exports.getTour = CatchAsyncErrors(async (req, res, next) => {
   res.status(200).json({ status: 'success', data: { tour } });
 });
 
-exports.addNewTour = CatchAsyncErrors(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({ status: 'success', data: { tours: newTour } });
-  // try {
-  //   // const newTour = await new Tour(req.body);
-  //   // newTour.save();
-  //   const newTour = await Tour.create(req.body);
-  //   res.status(201).json({ status: 'success', data: { tours: newTour } });
-  // } catch (err) {
-  //   console.log(`ERROR 💣 ${err}`);
-  //   return next(new AppError(err.message, err.status));
-  // }
-});
-
-exports.updateTour = async (req, res, next) => {
-  try {
-    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!updatedTour) {
-      return next(
-        new AppError(`Opps! No tour found with id (${req.params.id})`, 404)
-      );
-    }
-    res.status(200).json({ status: 'success', data: updatedTour });
-  } catch (err) {
-    return next(new AppError(err.message, err.status));
-  }
-};
-
-// A factory function is a function that returns a new object
-exports.deleteTour = deleteOne(Tour);
+// We implemetd factory functions in this instance to avoid (DRY)
+exports.addNewTour = addNewDoc(Tour);
+exports.updateTour = updateDocument(Tour);
+exports.deleteTour = deleteDocument(Tour);
 
 // Aggragation Pipeline: Mathching anf grouping data
 // An aggregation pipeline consists of one or more stages that process documents:

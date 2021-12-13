@@ -34,10 +34,10 @@ router.patch('/update-password', auth, updatePassword);
 router.patch('/update-account', auth, updateUser);
 router.delete('/delete-account', auth, usersDeletesAccount);
 
+router.route('/me').get(auth, getUser);
 router.route('/').get(getAllUsers).post(addNewUser);
 router
   .route('/:id')
-  .get(getUser)
   .patch(updateUser)
   .delete(auth, restrictTo('admin'), adminDeleteUser);
 

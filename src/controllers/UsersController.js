@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
-const { deleteOne } = require('./FactoryFunctionHandler');
+const { deleteDocument } = require('./FactoryFunctionHandler');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -13,9 +13,19 @@ exports.getAllUsers = async (req, res, next) => {
 exports.addNewUser = (req, res) => {
   res.status(200).json({ status: 'success', message: 'Route Pending' });
 };
-exports.getUser = (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Route Pending' });
+
+exports.getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+    res.status(200).json({ status: 'success', data: user });
+  } catch (err) {
+    return next(new AppError(err.message, err.status));
+  }
 };
+
 exports.updateUser = async (req, res, next) => {
   try {
     const { password, passwordConfirmation, name, email } = req.body;
@@ -51,4 +61,5 @@ exports.usersDeletesAccount = async (req, res, next) => {
   }
 };
 
-exports.adminDeleteUser = deleteOne(User);
+// We implemetd factory functions in this instance to avoid (DRY)
+exports.adminDeleteUser = deleteDocument(User);
