@@ -102,6 +102,10 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+//  creating index in mongodb engine
+// ---Nb--- (1) Set indexes for fields that will be quried or searched often. (2) if theres a collection with a high write/read ration there's no point setting an index for the collection.
+tourSchema.index({ price: 1, reatingsAverage: -1 }); // adding more than on index in the index obj will make it a compound index
+tourSchema.index({ slug: 1 }); // this is a smiple index
 
 // Creating virtual properties in mongoose schema which wont be percisted in the database but will be available when we get the data
 tourSchema.virtual('durationWeeks').get(function () {
