@@ -51,6 +51,7 @@ const tourSchema = new mongoose.Schema(
       // Mongoose validators for numbers
       min: [1, `Opps! Ratings must be above 1.0`],
       max: [5, `Opps! Rating must be below 5.0`],
+      set: (number) => Math.round(number * 10) / 10, // the set function is run everytime a new value is created and theres a change in this field
     },
     ratingsQuantity: { type: Number, default: 0 },
     priceDiscount: {

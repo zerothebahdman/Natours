@@ -35,6 +35,8 @@ ReviewSchema.pre(/^find/, function (next) {
   next();
 });
 
+ReviewSchema.index({ tour: 1, user: 1 }, { unique: true }); // compound index that will allow users to only make one review per tour
+
 ReviewSchema.statics.calculateAverageRating = async function (tourId) {
   const stats = await this.aggregate([
     {
