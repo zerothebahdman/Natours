@@ -1,10 +1,10 @@
 const User = require('../models/User');
 const AppError = require('../utils/AppErrorClass');
-const { deleteDocument } = require('./FactoryFunctionHandler');
+const { deleteDocument, updateDocument } = require('./FactoryFunctionHandler');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const user = await User.find({ active: { $ne: false } });
+    const user = await User.find();
     res.status(200).json({ status: `success`, user });
   } catch (err) {
     return next(new AppError(err.message, 404));
@@ -62,4 +62,5 @@ exports.usersDeletesAccount = async (req, res, next) => {
 };
 
 // We implemetd factory functions in this instance to avoid (DRY)
+exports.adminUpdateUser = updateDocument(User);
 exports.adminDeleteUser = deleteDocument(User);

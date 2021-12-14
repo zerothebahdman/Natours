@@ -5,6 +5,7 @@ const {
   getUser,
   updateUser,
   adminDeleteUser,
+  adminUpdateUser,
   usersDeletesAccount,
 } = require('../controllers/UsersController');
 const {
@@ -30,15 +31,19 @@ router.post('/verify-email/:token', verifyUserEmailToken);
 router.post('/forgot-password', forgotPassword);
 router.patch('/reset-password/:token', resetPassword);
 
-router.patch('/update-password', auth, updatePassword);
-router.patch('/update-account', auth, updateUser);
-router.delete('/delete-account', auth, usersDeletesAccount);
+router.use(auth); // this will protect all the routes that comes after this line with the auth middleware
+router.patch('/update-password', updatePassword);
+router.patch('/update-account', updateUser);
+router.delete('/delete-account', usersDeletesAccount);
 
-router.route('/me').get(auth, getUser);
-router.route('/').get(getAllUsers).post(addNewUser);
+router.route('/me').get(getUser);
+router
+  .route('/')
+  .get(restrictTo('admin'), getAllUsers)
+  .post(restrictTo('admin'), addNewUser);
 router
   .route('/:id')
-  .patch(updateUser)
-  .delete(auth, restrictTo('admin'), adminDeleteUser);
+  .patch(restrictTo('admin'), adminUpdateUser)
+  .delete(restrictTo('admin'), adminDeleteUser);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const CatchAsyncErrorClass = require('../utils/CatchAsyncErrorClass');
 
 exports.deleteDocument = (Model) => async (req, res, next) => {
   try {
+    if (req.params.tourId) req.params.id = req.params.tourId;
     const document = await Model.findByIdAndDelete(req.params.id);
     if (!document) {
       return next(
@@ -19,6 +20,7 @@ exports.deleteDocument = (Model) => async (req, res, next) => {
 
 exports.updateDocument = (Model) => async (req, res, next) => {
   try {
+    if (req.params.tourId) req.params.id = req.params.tourId;
     const document = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
