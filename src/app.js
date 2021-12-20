@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
@@ -13,7 +14,12 @@ const AppError = require('./utils/AppErrorClass');
 const GlobalErrorHandler = require('./middleware/GlobalErrorHandlerMiddleware');
 
 const app = express();
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // Node middleware
+// Middleware that serves static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware that sets HTTP headers
 app.use(helmet());
@@ -56,8 +62,6 @@ app.use(
   })
 ); //whitelist will allow us use duplicate parameters for the specified fields
 
-// Middleware that serves static files
-app.use(express.static(`${__dirname}/public`));
 // app.use((req, res, next) => {
 //   console.log('Hello from middleware');
 //   next();
@@ -66,6 +70,11 @@ app.use(express.static(`${__dirname}/public`));
 //   req.time = new Date().toISOString();
 //   next();
 // });
+
+// Routes for rendering views
+app.get('/', (req, res, next) => {
+  res.status(200).render('base');
+});
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
